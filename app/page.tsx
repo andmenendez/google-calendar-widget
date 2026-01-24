@@ -3,7 +3,7 @@ import { getCalendarEvents } from "@/lib/google-calendar";
 import { format, startOfWeek, endOfWeek, addDays } from "date-fns";
 
 export const revalidate = 3600; // Revalidate every hour
-
+export const dynamic = 'force-dynamic';
 export default async function CalendarWidget({
   searchParams,
 }: {
