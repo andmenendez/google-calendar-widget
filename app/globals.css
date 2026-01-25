@@ -28,7 +28,6 @@ body {
 /* Calendar Page */
 .calendar-page {
   width: 100%;
-  height: 100vh;
   overflow: hidden;
   background: #ffffff;
   padding: 16px;
@@ -48,7 +47,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px;
+  padding: 8px 8px;
   background: #FAFAFA;
   border-radius: 8px;
   border: 1px solid #ECECEC;
@@ -56,7 +55,7 @@ body {
 
 .nav-button {
   min-width: 44px;
-  min-height: 44px;
+  min-height: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -79,9 +78,9 @@ body {
 }
 
 .week-display {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 500;
-  color: #333;
+  color: #444444;
   letter-spacing: 0.3px;
 }
 
@@ -90,7 +89,7 @@ body {
   flex: 1;
   display: grid;
   grid-template-columns: 60px repeat(7, 1fr);
-  grid-template-rows: 60px 30px repeat(17, 60px);
+  grid-template-rows: 24px 24px repeat(17, 24px);
   overflow-y: auto;
   overflow-x: auto;
   border: 1px solid #ECECEC;
@@ -110,15 +109,16 @@ body {
 
 /* Day Headers */
 .day-header {
+  width: 100%;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
   gap: 4px;
   border-right: 1px solid #ECECEC;
   border-bottom: 1px solid #ECECEC;
   background: #FAFAFA;
-  padding: 8px;
+  padding: 0px 2px 0px 2px;
 }
 
 .day-header:last-of-type {
@@ -134,21 +134,14 @@ body {
 }
 
 .date-number {
-  font-size: 18px;
-  font-weight: 500;
+  font-size: 10px;
+  font-weight: 400;
   color: #333;
-  width: 32px;
-  height: 32px;
+  padding: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-}
-
-.date-number.today {
-  background: #5B9FED;
-  color: white;
-  font-weight: 600;
 }
 
 /* Time Column */
@@ -177,7 +170,6 @@ body {
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: 4px 8px;
   border-right: 1px solid #ECECEC;
   border-bottom: 1px solid #ECECEC;
   background: #FAFAFA;
@@ -215,19 +207,24 @@ body {
   position: relative;
 }
 
-.hour-cell:nth-child(7n) {
+/* Remove right border from Sunday columns only
+   Grid structure: 1 corner + 7 headers + 1 time + 7 allday = 16 cells before hours
+   Then each hour row has 8 cells (1 time + 7 days)
+   Sunday hour cells are at positions: 24, 32, 40, 48... = 8n + 16 */
+.hour-cell:nth-child(8n + 16) {
   border-right: none;
 }
 
 .hour-cell.today-column {
-  background: #E3F2FD;
+  background: #7aa99413;
 }
 
 /* Event Blocks */
 .event-block {
+  width: auto;
   position: absolute;
-  padding: 6px 8px;
-  border-radius: 6px;
+  padding: 1px 3px;
+  border-radius: 2px;
   border: 1px solid;
   overflow: hidden;
   cursor: pointer;

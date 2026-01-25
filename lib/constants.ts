@@ -21,11 +21,11 @@ export const GRID_COLORS = {
 export const GRID_CONFIG = {
   startHour: 6, // 6 AM
   endHour: 23, // 11 PM
-  hourHeight: 60, // pixels per hour
-  quarterHourHeight: 15, // pixels per quarter hour
-  headerHeight: 60, // day header height
-  allDayBarHeight: 30, // all-day events bar height
-  timeColumnWidth: 60, // time labels column width
+  hourHeight: 24, // pixels per hour
+  quarterHourHeight: 6, // pixels per quarter hour
+  headerHeight: 24, // day header height
+  allDayBarHeight: 16, // all-day events bar height
+  timeColumnWidth: 32, // time labels column width
 } as const;
 
 // Days of the week (Monday first)

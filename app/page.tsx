@@ -11,8 +11,10 @@ export default async function CalendarWidget({
   searchParams: Promise<{ calendarId?: string; apiKey?: string; weekOffset?: string }>;
 }) {
   const params = await searchParams;
-  const calendarId = "andmenendez@gmail.com";
-  const apiKey = process.env.GOOGLE_API_KEY || params.apiKey;
+  const calendarId = "dailynalissa1@gmail.com";
+  // const calendarId = "andmenendez@gmail.com";
+  // const apiKey = process.env.GOOGLE_API_KEY || params.apiKey;
+  const apiKey = 'AIzaSyBER8NdU7nuXktUgDjIQRyfNFzl6zvpzBs';
 
   if (!apiKey) {
     return <div className="p-4 text-red-500">Missing API Key</div>;
