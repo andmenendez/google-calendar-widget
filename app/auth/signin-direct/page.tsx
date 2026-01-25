@@ -1,22 +1,6 @@
-'use client'
+import { signIn } from "@/lib/auth"
 
-import { useEffect } from "react"
-import { signInWithGoogle } from "@/app/auth/actions"
-
-export default function SignInPopup() {
-  useEffect(() => {
-    // Check if we just completed OAuth and came back from callback
-    const params = new URLSearchParams(window.location.search)
-    if (params.has('auth-complete')) {
-      // Notify parent window that signin was successful
-      if (window.opener) {
-        window.opener.postMessage({ type: 'signin-success' }, '*')
-      }
-      // Close popup after a brief delay to allow message to be received
-      setTimeout(() => window.close(), 100)
-    }
-  }, [])
-
+export default function SignInDirect() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50">
       <div className="w-full max-w-md space-y-8 rounded-lg bg-white p-8 shadow-md">
@@ -30,7 +14,10 @@ export default function SignInPopup() {
         </div>
 
         <form
-          action={() => signInWithGoogle("/auth/signin-popup?auth-complete=true")}
+          action={async () => {
+            "use server"
+            await signIn("google", { redirectTo: "/" })
+          }}
         >
           <button
             type="submit"
