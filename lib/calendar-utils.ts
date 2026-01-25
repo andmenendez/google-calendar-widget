@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { format } from 'date-fns';
-import { EVENT_COLORS, ColorScheme, GRID_CONFIG } from './constants';
+import { EVENT_COLORS, ColorScheme, GRID_CONFIG, CALENDAR_CONFIGS } from './constants';
 
 export interface CalendarEvent {
   id: string;
@@ -13,6 +13,9 @@ export interface CalendarEvent {
     dateTime?: string;
     date?: string;
   };
+  calendarId?: string;      // source calendar
+  description?: string;     // event description
+  location?: string;        // event location
 }
 
 export interface PositionedEvent extends CalendarEvent {
@@ -95,6 +98,30 @@ export function getEventColor(eventId: string): ColorScheme {
 }
 
 /**
+ * Get calendar hex color by calendar ID
+ */
+export function getCalendarColor(calendarId?: string): string {
+  if (!calendarId) return '#D4E8F8'; // Default blue
+  const config = CALENDAR_CONFIGS.find(c => c.id === calendarId);
+  return config?.color || '#D4E8F8'; // Default blue
+}
+
+/**
+ * Convert hex color to color scheme with rgba variants
+ */
+export function hexToColorScheme(hexColor: string): ColorScheme {
+  const r = parseInt(hexColor.slice(1, 3), 16);
+  const g = parseInt(hexColor.slice(3, 5), 16);
+  const b = parseInt(hexColor.slice(5, 7), 16);
+
+  return {
+    bg: `rgba(${r}, ${g}, ${b}, 0.15)` as any,
+    text: `rgb(${Math.floor(r * 0.5)}, ${Math.floor(g * 0.5)}, ${Math.floor(b * 0.5)})` as any,
+    border: `rgba(${r}, ${g}, ${b}, 0.5)` as any,
+  };
+}
+
+/**
  * Check if two events overlap in time
  */
 function eventsOverlap(event1: CalendarEvent, event2: CalendarEvent): boolean {
@@ -140,7 +167,7 @@ export function arrangeOverlappingEvents(dayEvents: CalendarEvent[]): Positioned
       height,
       leftOffset: overlaps.length * 8,
       zIndex: index,
-      color: getEventColor(event.id),
+      color: hexToColorScheme(getCalendarColor(event.calendarId)),
     });
   });
 

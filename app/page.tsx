@@ -1,4 +1,5 @@
-import { getCalendarEvents } from "@/lib/google-calendar";
+import { getMultipleCalendarEvents } from "@/lib/google-calendar";
+import { CALENDAR_CONFIGS } from "@/lib/constants";
 import { startOfWeek, endOfWeek, addWeeks } from "date-fns";
 import { TimeGridCalendar } from "./components/TimeGridCalendar";
 
@@ -8,15 +9,9 @@ export const dynamic = 'force-dynamic';
 export default async function CalendarWidget({
   searchParams,
 }: {
-  searchParams: Promise<{ calendarId?: string; apiKey?: string; weekOffset?: string }>;
+  searchParams: Promise<{ weekOffset?: string }>;
 }) {
   const params = await searchParams;
-  const calendarId = "andmenendez@gmail.com";
-  const apiKey = process.env.GOOGLE_API_KEY || params.apiKey;
-
-  if (!apiKey) {
-    return <div className="p-4 text-red-500">Missing API Key</div>;
-  }
 
   // Parse week offset (default to 0 for current week)
   const weekOffset = parseInt(params.weekOffset || '0', 10);
@@ -27,10 +22,9 @@ export default async function CalendarWidget({
   const weekStart = startOfWeek(weekDate, { weekStartsOn: 1 }); // Monday
   const weekEnd = endOfWeek(weekDate, { weekStartsOn: 1 }); // Sunday
 
-  // Fetch events for the week
-  const events = await getCalendarEvents(
-    calendarId,
-    apiKey,
+  // Fetch events for the week from multiple calendars using service account
+  const events = await getMultipleCalendarEvents(
+    CALENDAR_CONFIGS,
     weekStart.toISOString(),
     weekEnd.toISOString()
   );
