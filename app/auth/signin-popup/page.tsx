@@ -8,12 +8,10 @@ export default function SignInPopup() {
     // Check if we just completed OAuth and came back from callback
     const params = new URLSearchParams(window.location.search)
     if (params.has('auth-complete')) {
-      // Notify parent window that signin was successful
-      if (window.opener) {
-        window.opener.postMessage({ type: 'signin-success' }, '*')
-      }
-      // Close popup after a brief delay to allow message to be received
-      setTimeout(() => window.close(), 100)
+      // Small delay to ensure session is set, then close popup
+      setTimeout(() => {
+        window.close()
+      }, 500)
     }
   }, [])
 
