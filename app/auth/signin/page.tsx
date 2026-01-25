@@ -12,14 +12,10 @@ export default function SignIn() {
 
     // Listen for storage changes from popup
     const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'oauth-complete' && e.newValue === 'true') {
-        // Clear the flag
-        localStorage.removeItem('oauth-complete')
-        setIsLoading(false)
-        // Reload to get new session
-        setTimeout(() => {
-          window.location.reload()
-        }, 1000)
+      if (e.key === 'auth-success' && e.newValue === 'true') {
+        // Clear the flag and reload
+        localStorage.removeItem('auth-success')
+        window.location.reload()
       }
     }
 
@@ -31,16 +27,35 @@ export default function SignIn() {
     setIsLoading(true)
 
     if (isInIframe) {
-      // Open signin in popup
+      // Open signin in popup with a unique identifier
+      const popupId = `google-signin-${Date.now()}`
       const popup = window.open(
-        `/auth/signin-popup`,
-        'google-signin',
+        `/auth/signin-popup?popup-id=${popupId}`,
+        popupId,
         'width=500,height=600,left=200,top=200'
       )
 
-      if (!popup) {
+      if (popup) {
+        // Poll for popup completion
+        const checkInterval = setInterval(() => {
+          try {
+            if (popup.closed) {
+              clearInterval(checkInterval)
+              setIsLoading(false)
+              // Check if auth was successful by looking for session cookie
+              // Reload to refresh session
+              setTimeout(() => {
+                window.location.reload()
+              }, 500)
+            }
+          } catch (e) {
+            // Error accessing popup, likely closed
+            clearInterval(checkInterval)
+            setIsLoading(false)
+          }
+        }, 500)
+      } else {
         setIsLoading(false)
-        alert('Please allow popups for this site to sign in')
       }
     } else {
       // Redirect to signin-direct for normal flow

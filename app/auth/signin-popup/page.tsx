@@ -8,17 +8,10 @@ export default function SignInPopup() {
     // Check if we just completed OAuth and came back from callback
     const params = new URLSearchParams(window.location.search)
     if (params.has('auth-complete')) {
-      // Wait a bit longer to ensure session is fully established
+      // Small delay to ensure session is set, then close popup
       setTimeout(() => {
-        try {
-          // Signal parent window that auth is complete
-          localStorage.setItem('oauth-complete', 'true')
-        } catch (e) {
-          // localStorage might be blocked, that's ok
-        }
-        // Close the popup
         window.close()
-      }, 1500)
+      }, 500)
     }
   }, [])
 
