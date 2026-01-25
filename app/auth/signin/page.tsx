@@ -4,58 +4,31 @@ import { useEffect, useState } from "react"
 
 export default function SignIn() {
   const [isInIframe, setIsInIframe] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
     // Detect if we're in an iframe
     setIsInIframe(window.self !== window.top)
-
-    // Listen for storage changes from popup
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'auth-success' && e.newValue === 'true') {
-        // Clear the flag and reload
-        localStorage.removeItem('auth-success')
-        window.location.reload()
-      }
-    }
-
-    window.addEventListener('storage', handleStorageChange)
-    return () => window.removeEventListener('storage', handleStorageChange)
   }, [])
 
   const handleSignIn = () => {
-    setIsLoading(true)
-
     if (isInIframe) {
-      // Open signin in popup with a unique identifier
-      const popupId = `google-signin-${Date.now()}`
+      // Open signin in popup
       const popup = window.open(
-        `/auth/signin-popup?popup-id=${popupId}`,
-        popupId,
+        '/auth/signin-popup',
+        'google-signin',
         'width=500,height=600,left=200,top=200'
       )
 
       if (popup) {
-        // Poll for popup completion
-        const checkInterval = setInterval(() => {
-          try {
-            if (popup.closed) {
-              clearInterval(checkInterval)
-              setIsLoading(false)
-              // Check if auth was successful by looking for session cookie
-              // Reload to refresh session
-              setTimeout(() => {
-                window.location.reload()
-              }, 500)
-            }
-          } catch (e) {
-            // Error accessing popup, likely closed
-            clearInterval(checkInterval)
-            setIsLoading(false)
+        // Listen for success message from popup
+        const handleMessage = (event: MessageEvent) => {
+          if (event.data.type === 'signin-success') {
+            // Reload to get new session
+            window.location.reload()
+            window.removeEventListener('message', handleMessage)
           }
-        }, 500)
-      } else {
-        setIsLoading(false)
+        }
+        window.addEventListener('message', handleMessage)
       }
     } else {
       // Redirect to signin-direct for normal flow
@@ -77,10 +50,9 @@ export default function SignIn() {
 
         <button
           onClick={handleSignIn}
-          disabled={isLoading}
-          className="w-full rounded-lg bg-blue-600 px-4 py-3 text-white hover:bg-blue-700 disabled:bg-blue-400 transition font-medium"
+          className="w-full rounded-lg bg-blue-600 px-4 py-3 text-white hover:bg-blue-700 transition font-medium"
         >
-          {isLoading ? 'Signing in...' : 'Sign in with Google'}
+          Sign in with Google
         </button>
       </div>
     </div>
