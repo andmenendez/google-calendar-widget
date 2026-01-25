@@ -1,30 +1,24 @@
-import { auth } from "@/lib/auth";
-import { redirect } from "next/navigation";
-import { getMultipleCalendarEvents } from "@/lib/google-calendar";
-import { CALENDAR_CONFIGS } from "@/lib/constants";
+import { getCalendarEvents } from "@/lib/google-calendar";
 import { startOfWeek, endOfWeek, addWeeks } from "date-fns";
 import { TimeGridCalendar } from "./components/TimeGridCalendar";
 
+export const revalidate = 3600; // Revalidate every hour
 export const dynamic = 'force-dynamic';
 
 export default async function CalendarWidget({
   searchParams,
 }: {
-  searchParams: Promise<{ weekOffset?: string }>;
+  searchParams: Promise<{ calendarId?: string; apiKey?: string; weekOffset?: string }>;
 }) {
-  // Check authentication
-  const session = await auth();
-
-  if (!session || !session.accessToken) {
-    redirect('/auth/signin');
-  }
-
-  // Check for token refresh errors
-  if (session.error === "RefreshAccessTokenError") {
-    redirect('/auth/signin');
-  }
-
   const params = await searchParams;
+  const calendarId = "andmenendez@gmail.com";
+  const apiKey = process.env.GOOGLE_API_KEY || params.apiKey;
+
+  if (!apiKey) {
+    return <div className="p-4 text-red-500">Missing API Key</div>;
+  }
+
+  // Parse week offset (default to 0 for current week)
   const weekOffset = parseInt(params.weekOffset || '0', 10);
 
   // Calculate week start (Monday) and end (Sunday)
@@ -33,10 +27,10 @@ export default async function CalendarWidget({
   const weekStart = startOfWeek(weekDate, { weekStartsOn: 1 }); // Monday
   const weekEnd = endOfWeek(weekDate, { weekStartsOn: 1 }); // Sunday
 
-  // Fetch events for the week from multiple calendars using OAuth access token
-  const events = await getMultipleCalendarEvents(
-    CALENDAR_CONFIGS,
-    session.accessToken,
+  // Fetch events for the week
+  const events = await getCalendarEvents(
+    calendarId,
+    apiKey,
     weekStart.toISOString(),
     weekEnd.toISOString()
   );

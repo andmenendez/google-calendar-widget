@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { format } from 'date-fns';
-import { EVENT_COLORS, ColorScheme, GRID_CONFIG, CALENDAR_CONFIGS } from './constants';
+import { EVENT_COLORS, ColorScheme, GRID_CONFIG } from './constants';
 
 export interface CalendarEvent {
   id: string;
@@ -13,9 +13,6 @@ export interface CalendarEvent {
     dateTime?: string;
     date?: string;
   };
-  calendarId?: string;      // source calendar
-  description?: string;     // event description
-  location?: string;        // event location
 }
 
 export interface PositionedEvent extends CalendarEvent {
@@ -36,7 +33,7 @@ export function calculateEventPosition(
   const start = new Date(startDateTime);
   const end = new Date(endDateTime);
 
-  const { startHour, endHour, hourHeight, quarterHourHeight } = GRID_CONFIG;
+  const { startHour, endHour, quarterHourHeight } = GRID_CONFIG;
 
   // Calculate minutes from grid start (6 AM)
   const startMinutes = (start.getHours() - startHour) * 60 + start.getMinutes();
@@ -47,13 +44,11 @@ export function calculateEventPosition(
   const clampedStart = Math.max(0, Math.min(startMinutes, maxMinutes));
   const clampedEnd = Math.max(0, Math.min(endMinutes, maxMinutes));
 
-  // Convert minutes to pixels using hourHeight from constants
-  // Example: 24px per hour = 0.4px per minute
-  const pixelsPerMinute = hourHeight / 60;
-  const top = clampedStart * pixelsPerMinute;
-  const height = (clampedEnd - clampedStart) * pixelsPerMinute;
+  // 60px per hour = 1px per minute
+  const top = clampedStart;
+  const height = clampedEnd - clampedStart;
 
-  // Round to nearest quarter hour
+  // Round to nearest quarter hour (15px)
   const topRounded = Math.round(top / quarterHourHeight) * quarterHourHeight;
   const heightRounded = Math.max(
     Math.round(height / quarterHourHeight) * quarterHourHeight,
@@ -97,30 +92,6 @@ export function getEventColor(eventId: string): ColorScheme {
 
   const index = Math.abs(hash) % colors.length;
   return colors[index];
-}
-
-/**
- * Get calendar hex color by calendar ID
- */
-export function getCalendarColor(calendarId?: string): string {
-  if (!calendarId) return '#D4E8F8'; // Default blue
-  const config = CALENDAR_CONFIGS.find(c => c.id === calendarId);
-  return config?.color || '#D4E8F8'; // Default blue
-}
-
-/**
- * Convert hex color to color scheme with rgba variants
- */
-export function hexToColorScheme(hexColor: string): ColorScheme {
-  const r = parseInt(hexColor.slice(1, 3), 16);
-  const g = parseInt(hexColor.slice(3, 5), 16);
-  const b = parseInt(hexColor.slice(5, 7), 16);
-
-  return {
-    bg: `rgba(${r}, ${g}, ${b}, 0.15)` as any,
-    text: `rgb(${Math.floor(r * 0.5)}, ${Math.floor(g * 0.5)}, ${Math.floor(b * 0.5)})` as any,
-    border: `rgba(${r}, ${g}, ${b}, 0.5)` as any,
-  };
 }
 
 /**
@@ -169,81 +140,11 @@ export function arrangeOverlappingEvents(dayEvents: CalendarEvent[]): Positioned
       height,
       leftOffset: overlaps.length * 8,
       zIndex: index,
-      color: hexToColorScheme(getCalendarColor(event.calendarId)),
+      color: getEventColor(event.id),
     });
   });
 
   return positioned;
-}
-
-/**
- * Split multi-day events into segments for each day they span
- */
-export function splitMultiDayEvents(
-  events: CalendarEvent[],
-  weekStart: Date
-): CalendarEvent[] {
-  const segments: CalendarEvent[] = [];
-
-  events.forEach((event) => {
-    const startDate = new Date(event.start.dateTime || event.start.date || '');
-    const endDate = new Date(event.end.dateTime || event.end.date || '');
-
-    // Get start and end of days
-    const eventStartDay = new Date(startDate);
-    eventStartDay.setHours(0, 0, 0, 0);
-    const eventEndDay = new Date(endDate);
-    eventEndDay.setHours(0, 0, 0, 0);
-
-    // If single-day event, keep as-is
-    if (eventStartDay.getTime() === eventEndDay.getTime()) {
-      segments.push(event);
-      return;
-    }
-
-    // Multi-day event: create segment for each day
-    let currentDay = new Date(eventStartDay);
-    let segmentIndex = 0;
-
-    while (currentDay <= eventEndDay) {
-      const dayIndex = Math.floor(
-        (currentDay.getTime() - weekStart.getTime()) / (1000 * 60 * 60 * 24)
-      );
-
-      if (dayIndex >= 0 && dayIndex < 7) {
-        const isFirstSegment = segmentIndex === 0;
-        const isLastSegment = currentDay.getTime() === eventEndDay.getTime();
-
-        // Segment start: original start if first, otherwise start of day
-        const segmentStart = isFirstSegment
-          ? startDate
-          : new Date(currentDay.getFullYear(), currentDay.getMonth(), currentDay.getDate(), 0, 0, 0);
-
-        // Segment end: original end if last, otherwise end of day (23:59:59)
-        const segmentEnd = isLastSegment
-          ? endDate
-          : new Date(currentDay.getFullYear(), currentDay.getMonth(), currentDay.getDate(), 23, 59, 59);
-
-        segments.push({
-          ...event,
-          id: `${event.id}-seg-${segmentIndex}`,
-          start: {
-            dateTime: segmentStart.toISOString(),
-            date: event.start.date,
-          },
-          end: {
-            dateTime: segmentEnd.toISOString(),
-            date: event.end.date,
-          },
-        });
-      }
-
-      currentDay.setDate(currentDay.getDate() + 1);
-      segmentIndex++;
-    }
-  });
-
-  return segments;
 }
 
 /**
@@ -253,12 +154,9 @@ export function groupEventsByDay(
   events: CalendarEvent[],
   weekStart: Date
 ): CalendarEvent[][] {
-  // Split multi-day events into day segments
-  const segmentedEvents = splitMultiDayEvents(events, weekStart);
-
   const days: CalendarEvent[][] = Array.from({ length: 7 }, () => []);
 
-  segmentedEvents.forEach((event) => {
+  events.forEach((event) => {
     const eventDate = new Date(event.start.dateTime || event.start.date || '');
     const dayIndex = Math.floor(
       (eventDate.getTime() - weekStart.getTime()) / (1000 * 60 * 60 * 24)

@@ -8,12 +8,10 @@ import {
   groupEventsByDay,
   filterAllDayEvents,
   filterTimedEvents,
-  getCalendarColor,
-  hexToColorScheme,
+  getEventColor,
   type CalendarEvent,
 } from '@/lib/calendar-utils';
 import { GRID_CONFIG, GRID_COLORS, DAYS_OF_WEEK } from '@/lib/constants';
-import { EventTooltip } from './EventTooltip';
 
 interface TimeGridCalendarProps {
   events: CalendarEvent[];
@@ -24,50 +22,6 @@ interface TimeGridCalendarProps {
 export function TimeGridCalendar({ events, weekStart, weekOffset }: TimeGridCalendarProps) {
   const router = useRouter();
   const today = new Date();
-  const [hoveredEvent, setHoveredEvent] = React.useState<CalendarEvent | null>(null);
-  const [tooltipPosition, setTooltipPosition] = React.useState({ x: 0, y: 0 });
-  const [tooShortEvents, setTooShortEvents] = React.useState<Set<string>>(new Set());
-  const [columnWidth, setColumnWidth] = React.useState(0);
-  const eventRefs = React.useRef<Map<string, HTMLDivElement>>(new Map());
-  const gridRef = React.useRef<HTMLDivElement>(null);
-
-  const handleEventMouseEnter = (
-    event: CalendarEvent,
-    e: React.MouseEvent<HTMLDivElement>
-  ) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    setTooltipPosition({
-      x: rect.right + 8,
-      y: rect.top,
-    });
-    setHoveredEvent(event);
-  };
-
-  const handleEventMouseLeave = () => {
-    setHoveredEvent(null);
-  };
-
-  // Measure grid and event block heights
-  React.useLayoutEffect(() => {
-    // Calculate column width from grid
-    if (gridRef.current) {
-      const gridWidth = gridRef.current.offsetWidth;
-      const timeColumnWidth = 60; // From CSS
-      const availableWidth = gridWidth - timeColumnWidth;
-      const dayColumnWidth = availableWidth / 7;
-      setColumnWidth(dayColumnWidth);
-    }
-
-    // Determine which events are too short to show time
-    const shortEvents = new Set<string>();
-    eventRefs.current.forEach((element, eventId) => {
-      // If height is less than 35px (approximately 2 lines), hide the time
-      if (element.offsetHeight < 35) {
-        shortEvents.add(eventId);
-      }
-    });
-    setTooShortEvents(shortEvents);
-  }, [events]);
 
   const navigateWeek = (direction: 1 | -1) => {
     const newOffset = weekOffset + direction;
@@ -107,7 +61,7 @@ export function TimeGridCalendar({ events, weekStart, weekOffset }: TimeGridCale
       </div>
 
       {/* Calendar grid */}
-      <div className="calendar-grid" ref={gridRef}>
+      <div className="calendar-grid">
         {/* Top-left corner (empty cell) */}
         <div className="corner-cell" />
 
@@ -136,7 +90,7 @@ export function TimeGridCalendar({ events, weekStart, weekOffset }: TimeGridCale
           return (
             <div key={`allday-${dayIndex}`} className="allday-cell">
               {allDayEvents.slice(0, 3).map((event) => {
-                const color = hexToColorScheme(getCalendarColor(event.calendarId));
+                const color = getEventColor(event.id);
                 return (
                   <div
                     key={event.id}
@@ -146,8 +100,6 @@ export function TimeGridCalendar({ events, weekStart, weekOffset }: TimeGridCale
                       color: color.text,
                       borderColor: color.border,
                     }}
-                    onMouseEnter={(e) => handleEventMouseEnter(event, e)}
-                    onMouseLeave={handleEventMouseLeave}
                   >
                     {event.summary}
                   </div>
@@ -195,20 +147,9 @@ export function TimeGridCalendar({ events, weekStart, weekOffset }: TimeGridCale
             // Row: starts at row 3 (after header and all-day row)
             const row = 3;
 
-            // Calculate event width to fill column without overflow
-            const rightMargin = 4;
-            const eventWidth = Math.max(0, columnWidth - event.leftOffset - rightMargin);
-
             return (
               <div
                 key={event.id}
-                ref={(el) => {
-                  if (el) {
-                    eventRefs.current.set(event.id, el);
-                  } else {
-                    eventRefs.current.delete(event.id);
-                  }
-                }}
                 className="event-block"
                 style={{
                   gridColumn: column,
@@ -216,17 +157,14 @@ export function TimeGridCalendar({ events, weekStart, weekOffset }: TimeGridCale
                   top: event.top,
                   height: event.height,
                   left: `${event.leftOffset}px`,
-                  width: `${eventWidth}px`,
                   zIndex: event.zIndex,
                   backgroundColor: event.color.bg,
                   color: event.color.text,
                   borderColor: event.color.border,
                 }}
-                onMouseEnter={(e) => handleEventMouseEnter(event, e)}
-                onMouseLeave={handleEventMouseLeave}
               >
                 <div className="event-title">{event.summary}</div>
-                {!tooShortEvents.has(event.id) && event.start.dateTime && event.end.dateTime && (
+                {event.start.dateTime && event.end.dateTime && (
                   <div className="event-time">
                     {format(new Date(event.start.dateTime), 'h:mm')} -{' '}
                     {format(new Date(event.end.dateTime), 'h:mm a')}
@@ -237,9 +175,6 @@ export function TimeGridCalendar({ events, weekStart, weekOffset }: TimeGridCale
           });
         })}
       </div>
-
-      {/* Event Tooltip */}
-      <EventTooltip event={hoveredEvent} position={tooltipPosition} />
     </div>
   );
 }

@@ -28,6 +28,7 @@ body {
 /* Calendar Page */
 .calendar-page {
   width: 100%;
+  height: 100vh;
   overflow: hidden;
   background: #ffffff;
   padding: 16px;
@@ -47,7 +48,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 8px;
+  padding: 12px 16px;
   background: #FAFAFA;
   border-radius: 8px;
   border: 1px solid #ECECEC;
@@ -55,7 +56,7 @@ body {
 
 .nav-button {
   min-width: 44px;
-  min-height: 8px;
+  min-height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -78,9 +79,9 @@ body {
 }
 
 .week-display {
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 500;
-  color: #444444;
+  color: #333;
   letter-spacing: 0.3px;
 }
 
@@ -89,7 +90,7 @@ body {
   flex: 1;
   display: grid;
   grid-template-columns: 60px repeat(7, 1fr);
-  grid-template-rows: 24px 24px repeat(17, 24px);
+  grid-template-rows: 60px 30px repeat(17, 60px);
   overflow-y: auto;
   overflow-x: auto;
   border: 1px solid #ECECEC;
@@ -109,16 +110,15 @@ body {
 
 /* Day Headers */
 .day-header {
-  width: 100%;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 4px;
   border-right: 1px solid #ECECEC;
   border-bottom: 1px solid #ECECEC;
   background: #FAFAFA;
-  padding: 0px 2px 0px 2px;
+  padding: 8px;
 }
 
 .day-header:last-of-type {
@@ -134,14 +134,21 @@ body {
 }
 
 .date-number {
-  font-size: 10px;
-  font-weight: 400;
+  font-size: 18px;
+  font-weight: 500;
   color: #333;
-  padding: 8px;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
+}
+
+.date-number.today {
+  background: #5B9FED;
+  color: white;
+  font-weight: 600;
 }
 
 /* Time Column */
@@ -170,6 +177,7 @@ body {
   display: flex;
   align-items: center;
   gap: 4px;
+  padding: 4px 8px;
   border-right: 1px solid #ECECEC;
   border-bottom: 1px solid #ECECEC;
   background: #FAFAFA;
@@ -207,32 +215,26 @@ body {
   position: relative;
 }
 
-/* Remove right border from Sunday columns only
-   Grid structure: 1 corner + 7 headers + 1 time + 7 allday = 16 cells before hours
-   Then each hour row has 8 cells (1 time + 7 days)
-   Sunday hour cells are at positions: 24, 32, 40, 48... = 8n + 16 */
-.hour-cell:nth-child(8n + 16) {
+.hour-cell:nth-child(7n) {
   border-right: none;
 }
 
 .hour-cell.today-column {
-  background: #7aa99413;
+  background: #E3F2FD;
 }
 
 /* Event Blocks */
 .event-block {
   position: absolute;
-  padding: 1px 3px;
-  border-radius: 2px;
+  padding: 6px 8px;
+  border-radius: 6px;
   border: 1px solid;
   overflow: hidden;
   cursor: pointer;
   transition: all 0.2s;
   pointer-events: auto;
+  margin-right: 4px;
   contain: layout style;
-  display: flex;
-  flex-direction: column;
-  box-shadow: inset 0 0 0 1000px rgba(255, 255, 255, 0.7);
 }
 
 .event-block:hover {
@@ -248,16 +250,15 @@ body {
   text-overflow: ellipsis;
   white-space: nowrap;
   margin-bottom: 2px;
-  min-width: 0;
 }
 
 .event-time {
   font-size: 10px;
   line-height: 1.3;
+  opacity: 0.8;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  min-width: 0;
 }
 
 /* Responsive Design */
@@ -314,68 +315,5 @@ body {
 
   .event-time {
     font-size: 9px;
-  }
-}
-
-/* Event Tooltip */
-.event-tooltip {
-  position: fixed;
-  background: white;
-  border: 1px solid #ECECEC;
-  border-radius: 8px;
-  padding: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  z-index: 1000;
-  max-width: 300px;
-  pointer-events: none;
-}
-
-.tooltip-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 6px;
-  word-wrap: break-word;
-}
-
-.tooltip-time {
-  font-size: 12px;
-  color: #666;
-  margin-bottom: 6px;
-}
-
-.tooltip-location {
-  font-size: 12px;
-  color: #666;
-  margin-bottom: 6px;
-  word-wrap: break-word;
-}
-
-.tooltip-description {
-  font-size: 11px;
-  color: #888;
-  line-height: 1.4;
-  max-height: 100px;
-  overflow-y: auto;
-  word-wrap: break-word;
-}
-
-@media (prefers-color-scheme: dark) {
-  .event-tooltip {
-    background: #2a2a2a;
-    border-color: #444;
-  }
-
-  .tooltip-title {
-    color: #ededed;
-  }
-
-  .tooltip-time,
-  .tooltip-location {
-    color: #bbb;
-  }
-
-  .tooltip-description {
-    color: #999;
   }
 }
