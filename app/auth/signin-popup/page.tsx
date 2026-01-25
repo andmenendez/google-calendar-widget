@@ -1,9 +1,13 @@
 'use client'
 
-import { useEffect } from "react"
-import { signInWithGoogle } from "@/app/auth/actions"
+import { signIn } from "@/lib/auth"
+import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 
 export default function SignInPopup() {
+  const router = useRouter()
+  const [isLoading, setIsLoading] = useState(false)
+
   useEffect(() => {
     // Check if we just completed OAuth and came back from callback
     const params = new URLSearchParams(window.location.search)
@@ -17,6 +21,12 @@ export default function SignInPopup() {
     }
   }, [])
 
+  const handleSignIn = async () => {
+    setIsLoading(true)
+    // Redirect to auth complete page after signin
+    await signIn("google", { redirectTo: "/auth/signin-popup?auth-complete=true" })
+  }
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50">
       <div className="w-full max-w-md space-y-8 rounded-lg bg-white p-8 shadow-md">
@@ -29,16 +39,13 @@ export default function SignInPopup() {
           </p>
         </div>
 
-        <form
-          action={() => signInWithGoogle("/auth/signin-popup?auth-complete=true")}
+        <button
+          onClick={handleSignIn}
+          disabled={isLoading}
+          className="w-full rounded-lg bg-blue-600 px-4 py-3 text-white hover:bg-blue-700 disabled:bg-blue-400 transition font-medium"
         >
-          <button
-            type="submit"
-            className="w-full rounded-lg bg-blue-600 px-4 py-3 text-white hover:bg-blue-700 transition font-medium"
-          >
-            Sign in with Google
-          </button>
-        </form>
+          {isLoading ? 'Signing in...' : 'Sign in with Google'}
+        </button>
       </div>
     </div>
   )

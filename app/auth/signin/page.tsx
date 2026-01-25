@@ -1,16 +1,26 @@
 'use client'
 
+import { signIn } from "@/lib/auth"
 import { useEffect, useState } from "react"
 
 export default function SignIn() {
   const [isInIframe, setIsInIframe] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
     // Detect if we're in an iframe
     setIsInIframe(window.self !== window.top)
+
+    // If this page was opened in a popup and auth succeeded, notify parent
+    if (window.opener && window.location.search.includes('callbackComplete=true')) {
+      window.opener.postMessage({ type: 'signin-success' }, '*')
+      window.close()
+    }
   }, [])
 
-  const handleSignIn = () => {
+  const handleSignIn = async () => {
+    setIsLoading(true)
+
     if (isInIframe) {
       // Open signin in popup
       const popup = window.open(
@@ -31,8 +41,8 @@ export default function SignIn() {
         window.addEventListener('message', handleMessage)
       }
     } else {
-      // Redirect to signin-direct for normal flow
-      window.location.href = '/auth/signin-direct'
+      // Normal redirect for non-iframe
+      await signIn("google", { redirectTo: "/" })
     }
   }
 
@@ -50,9 +60,10 @@ export default function SignIn() {
 
         <button
           onClick={handleSignIn}
-          className="w-full rounded-lg bg-blue-600 px-4 py-3 text-white hover:bg-blue-700 transition font-medium"
+          disabled={isLoading}
+          className="w-full rounded-lg bg-blue-600 px-4 py-3 text-white hover:bg-blue-700 disabled:bg-blue-400 transition font-medium"
         >
-          Sign in with Google
+          {isLoading ? 'Signing in...' : 'Sign in with Google'}
         </button>
       </div>
     </div>
