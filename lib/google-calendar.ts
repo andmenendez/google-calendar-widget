@@ -2,16 +2,28 @@ import type { CalendarConfig } from './constants';
 
 export async function getCalendarEvents(
   calendarId: string,
-  apiKey: string,
+  accessToken: string,
   timeMin: string,
   timeMax: string,
 ) {
   const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(
     calendarId,
-  )}/events?key=${apiKey}&timeMin=${timeMin}&timeMax=${timeMax}&singleEvents=true&orderBy=startTime`;
+  )}/events?timeMin=${timeMin}&timeMax=${timeMax}&singleEvents=true&orderBy=startTime`;
 
   try {
-    const response = await fetch(url);
+    const response = await fetch(url, {
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      cache: 'no-store',
+    });
+
+    if (!response.ok) {
+      console.error(`Calendar API error (${calendarId}):`, response.status);
+      return [];
+    }
+
     const data = await response.json();
     return data.items || [];
   } catch (error) {
@@ -22,7 +34,7 @@ export async function getCalendarEvents(
 
 export async function getMultipleCalendarEvents(
   calendars: CalendarConfig[],
-  apiKey: string,
+  accessToken: string,
   timeMin: string,
   timeMax: string,
 ): Promise<any[]> {
@@ -30,7 +42,7 @@ export async function getMultipleCalendarEvents(
   const eventPromises = calendars.map(async (calendar) => {
     const events = await getCalendarEvents(
       calendar.id,
-      apiKey,
+      accessToken,
       timeMin,
       timeMax
     );
