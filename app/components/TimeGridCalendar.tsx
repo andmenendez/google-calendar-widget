@@ -8,10 +8,12 @@ import {
   groupEventsByDay,
   filterAllDayEvents,
   filterTimedEvents,
-  getEventColor,
+  getCalendarColor,
+  hexToColorScheme,
   type CalendarEvent,
 } from '@/lib/calendar-utils';
 import { GRID_CONFIG, GRID_COLORS, DAYS_OF_WEEK } from '@/lib/constants';
+import { EventTooltip } from './EventTooltip';
 
 interface TimeGridCalendarProps {
   events: CalendarEvent[];
@@ -22,6 +24,24 @@ interface TimeGridCalendarProps {
 export function TimeGridCalendar({ events, weekStart, weekOffset }: TimeGridCalendarProps) {
   const router = useRouter();
   const today = new Date();
+  const [hoveredEvent, setHoveredEvent] = React.useState<CalendarEvent | null>(null);
+  const [tooltipPosition, setTooltipPosition] = React.useState({ x: 0, y: 0 });
+
+  const handleEventMouseEnter = (
+    event: CalendarEvent,
+    e: React.MouseEvent<HTMLDivElement>
+  ) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setTooltipPosition({
+      x: rect.right + 8,
+      y: rect.top,
+    });
+    setHoveredEvent(event);
+  };
+
+  const handleEventMouseLeave = () => {
+    setHoveredEvent(null);
+  };
 
   const navigateWeek = (direction: 1 | -1) => {
     const newOffset = weekOffset + direction;
@@ -90,7 +110,7 @@ export function TimeGridCalendar({ events, weekStart, weekOffset }: TimeGridCale
           return (
             <div key={`allday-${dayIndex}`} className="allday-cell">
               {allDayEvents.slice(0, 3).map((event) => {
-                const color = getEventColor(event.id);
+                const color = hexToColorScheme(getCalendarColor(event.calendarId));
                 return (
                   <div
                     key={event.id}
@@ -100,6 +120,8 @@ export function TimeGridCalendar({ events, weekStart, weekOffset }: TimeGridCale
                       color: color.text,
                       borderColor: color.border,
                     }}
+                    onMouseEnter={(e) => handleEventMouseEnter(event, e)}
+                    onMouseLeave={handleEventMouseLeave}
                   >
                     {event.summary}
                   </div>
@@ -162,6 +184,8 @@ export function TimeGridCalendar({ events, weekStart, weekOffset }: TimeGridCale
                   color: event.color.text,
                   borderColor: event.color.border,
                 }}
+                onMouseEnter={(e) => handleEventMouseEnter(event, e)}
+                onMouseLeave={handleEventMouseLeave}
               >
                 <div className="event-title">{event.summary}</div>
                 {event.start.dateTime && event.end.dateTime && (
@@ -175,6 +199,9 @@ export function TimeGridCalendar({ events, weekStart, weekOffset }: TimeGridCale
           });
         })}
       </div>
+
+      {/* Event Tooltip */}
+      <EventTooltip event={hoveredEvent} position={tooltipPosition} />
     </div>
   );
 }

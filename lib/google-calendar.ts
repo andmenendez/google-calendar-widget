@@ -1,3 +1,5 @@
+import type { CalendarConfig } from './constants';
+
 export async function getCalendarEvents(
   calendarId: string,
   apiKey: string,
@@ -16,4 +18,30 @@ export async function getCalendarEvents(
     console.error("Error fetching calendar:", error);
     return [];
   }
+}
+
+export async function getMultipleCalendarEvents(
+  calendars: CalendarConfig[],
+  apiKey: string,
+  timeMin: string,
+  timeMax: string,
+): Promise<any[]> {
+  // Fetch all calendars in parallel
+  const eventPromises = calendars.map(async (calendar) => {
+    const events = await getCalendarEvents(
+      calendar.id,
+      apiKey,
+      timeMin,
+      timeMax
+    );
+
+    // Tag each event with its source calendar ID
+    return events.map((event: any) => ({
+      ...event,
+      calendarId: calendar.id,
+    }));
+  });
+
+  const results = await Promise.all(eventPromises);
+  return results.flat();
 }

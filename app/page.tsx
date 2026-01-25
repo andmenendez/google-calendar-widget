@@ -1,4 +1,5 @@
-import { getCalendarEvents } from "@/lib/google-calendar";
+import { getMultipleCalendarEvents } from "@/lib/google-calendar";
+import { CALENDAR_CONFIGS } from "@/lib/constants";
 import { startOfWeek, endOfWeek, addWeeks } from "date-fns";
 import { TimeGridCalendar } from "./components/TimeGridCalendar";
 
@@ -29,9 +30,9 @@ export default async function CalendarWidget({
   const weekStart = startOfWeek(weekDate, { weekStartsOn: 1 }); // Monday
   const weekEnd = endOfWeek(weekDate, { weekStartsOn: 1 }); // Sunday
 
-  // Fetch events for the week
-  const events = await getCalendarEvents(
-    calendarId,
+  // Fetch events for the week from multiple calendars
+  const events = await getMultipleCalendarEvents(
+    CALENDAR_CONFIGS,
     apiKey,
     weekStart.toISOString(),
     weekEnd.toISOString()

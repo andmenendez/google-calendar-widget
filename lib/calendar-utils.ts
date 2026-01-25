@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { format } from 'date-fns';
-import { EVENT_COLORS, ColorScheme, GRID_CONFIG } from './constants';
+import { EVENT_COLORS, ColorScheme, GRID_CONFIG, CALENDAR_CONFIGS } from './constants';
 
 export interface CalendarEvent {
   id: string;
@@ -13,6 +13,9 @@ export interface CalendarEvent {
     dateTime?: string;
     date?: string;
   };
+  calendarId?: string;      // source calendar
+  description?: string;     // event description
+  location?: string;        // event location
 }
 
 export interface PositionedEvent extends CalendarEvent {
@@ -97,6 +100,30 @@ export function getEventColor(eventId: string): ColorScheme {
 }
 
 /**
+ * Get calendar hex color by calendar ID
+ */
+export function getCalendarColor(calendarId?: string): string {
+  if (!calendarId) return '#D4E8F8'; // Default blue
+  const config = CALENDAR_CONFIGS.find(c => c.id === calendarId);
+  return config?.color || '#D4E8F8'; // Default blue
+}
+
+/**
+ * Convert hex color to color scheme with rgba variants
+ */
+export function hexToColorScheme(hexColor: string): ColorScheme {
+  const r = parseInt(hexColor.slice(1, 3), 16);
+  const g = parseInt(hexColor.slice(3, 5), 16);
+  const b = parseInt(hexColor.slice(5, 7), 16);
+
+  return {
+    bg: `rgba(${r}, ${g}, ${b}, 0.15)` as any,
+    text: `rgb(${Math.floor(r * 0.5)}, ${Math.floor(g * 0.5)}, ${Math.floor(b * 0.5)})` as any,
+    border: `rgba(${r}, ${g}, ${b}, 0.5)` as any,
+  };
+}
+
+/**
  * Check if two events overlap in time
  */
 function eventsOverlap(event1: CalendarEvent, event2: CalendarEvent): boolean {
@@ -142,11 +169,81 @@ export function arrangeOverlappingEvents(dayEvents: CalendarEvent[]): Positioned
       height,
       leftOffset: overlaps.length * 8,
       zIndex: index,
-      color: getEventColor(event.id),
+      color: hexToColorScheme(getCalendarColor(event.calendarId)),
     });
   });
 
   return positioned;
+}
+
+/**
+ * Split multi-day events into segments for each day they span
+ */
+export function splitMultiDayEvents(
+  events: CalendarEvent[],
+  weekStart: Date
+): CalendarEvent[] {
+  const segments: CalendarEvent[] = [];
+
+  events.forEach((event) => {
+    const startDate = new Date(event.start.dateTime || event.start.date || '');
+    const endDate = new Date(event.end.dateTime || event.end.date || '');
+
+    // Get start and end of days
+    const eventStartDay = new Date(startDate);
+    eventStartDay.setHours(0, 0, 0, 0);
+    const eventEndDay = new Date(endDate);
+    eventEndDay.setHours(0, 0, 0, 0);
+
+    // If single-day event, keep as-is
+    if (eventStartDay.getTime() === eventEndDay.getTime()) {
+      segments.push(event);
+      return;
+    }
+
+    // Multi-day event: create segment for each day
+    let currentDay = new Date(eventStartDay);
+    let segmentIndex = 0;
+
+    while (currentDay <= eventEndDay) {
+      const dayIndex = Math.floor(
+        (currentDay.getTime() - weekStart.getTime()) / (1000 * 60 * 60 * 24)
+      );
+
+      if (dayIndex >= 0 && dayIndex < 7) {
+        const isFirstSegment = segmentIndex === 0;
+        const isLastSegment = currentDay.getTime() === eventEndDay.getTime();
+
+        // Segment start: original start if first, otherwise start of day
+        const segmentStart = isFirstSegment
+          ? startDate
+          : new Date(currentDay.getFullYear(), currentDay.getMonth(), currentDay.getDate(), 0, 0, 0);
+
+        // Segment end: original end if last, otherwise end of day (23:59:59)
+        const segmentEnd = isLastSegment
+          ? endDate
+          : new Date(currentDay.getFullYear(), currentDay.getMonth(), currentDay.getDate(), 23, 59, 59);
+
+        segments.push({
+          ...event,
+          id: `${event.id}-seg-${segmentIndex}`,
+          start: {
+            dateTime: segmentStart.toISOString(),
+            date: event.start.date,
+          },
+          end: {
+            dateTime: segmentEnd.toISOString(),
+            date: event.end.date,
+          },
+        });
+      }
+
+      currentDay.setDate(currentDay.getDate() + 1);
+      segmentIndex++;
+    }
+  });
+
+  return segments;
 }
 
 /**
@@ -156,9 +253,12 @@ export function groupEventsByDay(
   events: CalendarEvent[],
   weekStart: Date
 ): CalendarEvent[][] {
+  // Split multi-day events into day segments
+  const segmentedEvents = splitMultiDayEvents(events, weekStart);
+
   const days: CalendarEvent[][] = Array.from({ length: 7 }, () => []);
 
-  events.forEach((event) => {
+  segmentedEvents.forEach((event) => {
     const eventDate = new Date(event.start.dateTime || event.start.date || '');
     const dayIndex = Math.floor(
       (eventDate.getTime() - weekStart.getTime()) / (1000 * 60 * 60 * 24)
