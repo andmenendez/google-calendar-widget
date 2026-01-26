@@ -36,7 +36,7 @@ export function calculateEventPosition(
   const start = new Date(startDateTime);
   const end = new Date(endDateTime);
 
-  const { startHour, endHour, quarterHourHeight } = GRID_CONFIG;
+  const { startHour, endHour, hourHeight, quarterHourHeight } = GRID_CONFIG;
 
   // Calculate minutes from grid start (6 AM)
   const startMinutes = (start.getHours() - startHour) * 60 + start.getMinutes();
@@ -47,11 +47,13 @@ export function calculateEventPosition(
   const clampedStart = Math.max(0, Math.min(startMinutes, maxMinutes));
   const clampedEnd = Math.max(0, Math.min(endMinutes, maxMinutes));
 
-  // 60px per hour = 1px per minute
-  const top = clampedStart;
-  const height = clampedEnd - clampedStart;
+  // Convert minutes to pixels using hourHeight
+  // hourHeight pixels per 60 minutes
+  const pixelsPerMinute = hourHeight / 60;
+  const top = clampedStart * pixelsPerMinute;
+  const height = (clampedEnd - clampedStart) * pixelsPerMinute;
 
-  // Round to nearest quarter hour (15px)
+  // Round to nearest quarter hour (6px)
   const topRounded = Math.round(top / quarterHourHeight) * quarterHourHeight;
   const heightRounded = Math.max(
     Math.round(height / quarterHourHeight) * quarterHourHeight,

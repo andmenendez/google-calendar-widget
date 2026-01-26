@@ -21,10 +21,10 @@ export const GRID_COLORS = {
 export const GRID_CONFIG = {
   startHour: 6, // 6 AM
   endHour: 23, // 11 PM
-  hourHeight: 60, // pixels per hour
-  quarterHourHeight: 15, // pixels per quarter hour
-  headerHeight: 60, // day header height
-  allDayBarHeight: 30, // all-day events bar height
+  hourHeight: 24, // pixels per hour
+  quarterHourHeight: 6, // pixels per quarter hour
+  headerHeight: 36, // day header height (row 1)
+  allDayBarHeight: 24, // all-day events bar height (row 2)
   timeColumnWidth: 60, // time labels column width
 } as const;
 

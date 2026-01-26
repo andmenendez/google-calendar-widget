@@ -1,5 +1,6 @@
 import { google } from 'googleapis';
 import type { CalendarConfig } from './constants';
+import type { calendar_v3 } from 'googleapis';
 
 // Initialize Google Calendar API client with service account
 function getCalendarClient() {
@@ -21,7 +22,7 @@ export async function getCalendarEvents(
   calendarId: string,
   timeMin: string,
   timeMax: string,
-) {
+): Promise<calendar_v3.Schema$Event[]> {
   try {
     const calendar = getCalendarClient();
 
@@ -44,7 +45,7 @@ export async function getMultipleCalendarEvents(
   calendars: CalendarConfig[],
   timeMin: string,
   timeMax: string,
-): Promise<any[]> {
+): Promise<(calendar_v3.Schema$Event & { calendarId: string })[]> {
   // Fetch all calendars in parallel
   const eventPromises = calendars.map(async (calendar) => {
     const events = await getCalendarEvents(
@@ -54,7 +55,7 @@ export async function getMultipleCalendarEvents(
     );
 
     // Tag each event with its source calendar ID
-    return events.map((event: any) => ({
+    return events.map((event) => ({
       ...event,
       calendarId: calendar.id,
     }));

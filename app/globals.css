@@ -90,7 +90,7 @@ body {
   flex: 1;
   display: grid;
   grid-template-columns: 60px repeat(7, 1fr);
-  grid-template-rows: 60px 30px repeat(17, 60px);
+  grid-template-rows: 36px 24px repeat(17, 24px);
   overflow-y: auto;
   overflow-x: auto;
   border: 1px solid #ECECEC;
@@ -143,12 +143,6 @@ body {
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-}
-
-.date-number.today {
-  background: #5B9FED;
-  color: white;
-  font-weight: 600;
 }
 
 /* Time Column */
@@ -220,14 +214,15 @@ body {
 }
 
 .hour-cell.today-column {
-  background: #E3F2FD;
+  background: #7aa99413;
 }
 
 /* Event Blocks */
 .event-block {
+  margin-left: 1px;
   position: absolute;
-  padding: 6px 8px;
-  border-radius: 6px;
+  padding: 1px 4px;
+  border-radius: 2px;
   border: 1px solid;
   overflow: hidden;
   cursor: pointer;
