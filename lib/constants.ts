@@ -39,7 +39,13 @@ export interface CalendarConfig {
 }
 
 export const CALENDAR_CONFIGS: CalendarConfig[] = [
-  { id: 'dailynalissa1@gmail.com', color: '#E8DEFF', name: 'Personal' },
-  { id: '8504444a07ab2d18039dfdcb69c59bd5c5774d72566df90a5f537c47e9f7eeb5@group.calendar.google.com', color: '#f10000', name: 'Work' },
+  { id: 'dailynalissa1@gmail.com', color: '#B5A4B0', name: 'dailyn davis' },
+  { id: 'aded065177da5c843ccff0c59b4f3b2c44a1d6a7b2ee2c62a9813c0901b31383@group.calendar.google.com', color: '#929BB5', name: 'bed time' },
+  { id: 'a72819b0e72d448f6b036c400d03940bc59559aff56a98de63eeb6a1e2135c6c@group.calendar.google.com', color: '#A881A5', name: 'creativity' },
+  { id: '8e9e93cfa2af01eba1b890144ac9b143e029bcf83adea3f44699d80b3e6d18c8@group.calendar.google.com', color: '#91A8B4', name: 'workout' },
+  { id: '65805409fdb3bc77062b11d48c79c22c88a57b4e9f7a3411c3e2231bfc581ee9@group.calendar.google.com', color: '#A881A5', name: 'school' },
+  { id: '0ec086232f14e3292be7633d64c8091c2c4498819924bbc55d01ff0588f14d96@group.calendar.google.com', color: '#A881A5', name: 'spanish' },
+  { id: 'dee7f4310a0c3392abd7aacfb9d00bd738238a695868b7bea40fdd5e6e4cf29d@group.calendar.google.com', color: '#C5C4C1', name: 'wake up' },
+  { id: '8504444a07ab2d18039dfdcb69c59bd5c5774d72566df90a5f537c47e9f7eeb5@group.calendar.google.com', color: '#91A8B4', name: 'work' },
   // Add more calendars as needed
 ];
