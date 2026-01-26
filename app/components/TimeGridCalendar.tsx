@@ -8,10 +8,11 @@ import {
   groupEventsByDay,
   filterAllDayEvents,
   filterTimedEvents,
-  getEventColor,
+  hexToColorScheme,
+  getCalendarColor,
   type CalendarEvent,
 } from '@/lib/calendar-utils';
-import { GRID_CONFIG, GRID_COLORS, DAYS_OF_WEEK } from '@/lib/constants';
+import { GRID_CONFIG, DAYS_OF_WEEK } from '@/lib/constants';
 
 interface TimeGridCalendarProps {
   events: CalendarEvent[];
@@ -90,7 +91,7 @@ export function TimeGridCalendar({ events, weekStart, weekOffset }: TimeGridCale
           return (
             <div key={`allday-${dayIndex}`} className="allday-cell">
               {allDayEvents.slice(0, 3).map((event) => {
-                const color = getEventColor(event.id);
+                const color = hexToColorScheme(getCalendarColor(event.calendarId));
                 return (
                   <div
                     key={event.id}
@@ -147,10 +148,14 @@ export function TimeGridCalendar({ events, weekStart, weekOffset }: TimeGridCale
             // Row: starts at row 3 (after header and all-day row)
             const row = 3;
 
+            // Determine if event is small (height < 45px means content likely truncated)
+            const heightInPx = parseFloat(event.height);
+            const isSmallEvent = heightInPx < 45;
+
             return (
               <div
                 key={event.id}
-                className="event-block"
+                className={`event-block ${isSmallEvent ? 'event-small' : ''}`}
                 style={{
                   gridColumn: column,
                   gridRow: `${row} / span ${GRID_CONFIG.endHour - GRID_CONFIG.startHour}`,

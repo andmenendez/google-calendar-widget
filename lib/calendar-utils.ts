@@ -109,7 +109,18 @@ export function getCalendarColor(calendarId?: string): string {
 }
 
 /**
- * Convert hex color to color scheme with rgba variants
+ * Convert rgba color to opaque RGB equivalent on white background
+ * Formula: opaque = 255 - (255 - original) * alpha
+ */
+function rgbaToOpaqueRgb(r: number, g: number, b: number, alpha: number): string {
+  const opaque_r = Math.round(255 - (255 - r) * alpha);
+  const opaque_g = Math.round(255 - (255 - g) * alpha);
+  const opaque_b = Math.round(255 - (255 - b) * alpha);
+  return `rgb(${opaque_r}, ${opaque_g}, ${opaque_b})`;
+}
+
+/**
+ * Convert hex color to color scheme with opaque RGB colors
  */
 export function hexToColorScheme(hexColor: string): ColorScheme {
   const r = parseInt(hexColor.slice(1, 3), 16);
@@ -117,9 +128,9 @@ export function hexToColorScheme(hexColor: string): ColorScheme {
   const b = parseInt(hexColor.slice(5, 7), 16);
 
   return {
-    bg: `rgba(${r}, ${g}, ${b}, 0.15)` as any,
+    bg: rgbaToOpaqueRgb(r, g, b, 0.1) as any,  // 15% opacity equivalent
     text: `rgb(${Math.floor(r * 0.5)}, ${Math.floor(g * 0.5)}, ${Math.floor(b * 0.5)})` as any,
-    border: `rgba(${r}, ${g}, ${b}, 0.5)` as any,
+    border: rgbaToOpaqueRgb(r, g, b, 0.5-0.2*((r/255)**2)) as any,  // 50% opacity equivalent
   };
 }
 

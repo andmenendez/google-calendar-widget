@@ -2,6 +2,7 @@ import { getMultipleCalendarEvents } from "@/lib/google-calendar";
 import { CALENDAR_CONFIGS } from "@/lib/constants";
 import { startOfWeek, endOfWeek, addWeeks } from "date-fns";
 import { TimeGridCalendar } from "./components/TimeGridCalendar";
+import { CalendarEvent } from "@/lib/calendar-utils";
 
 export const revalidate = 3600; // Revalidate every hour
 export const dynamic = 'force-dynamic';
@@ -32,7 +33,7 @@ export default async function CalendarWidget({
   return (
     <main className="calendar-page">
       <TimeGridCalendar
-        events={events}
+        events={events as CalendarEvent[]}
         weekStart={weekStart}
         weekOffset={weekOffset}
       />

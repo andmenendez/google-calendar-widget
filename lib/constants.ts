@@ -41,6 +41,5 @@ export interface CalendarConfig {
 export const CALENDAR_CONFIGS: CalendarConfig[] = [
   { id: 'dailynalissa1@gmail.com', color: '#E8DEFF', name: 'Personal' },
   { id: '8504444a07ab2d18039dfdcb69c59bd5c5774d72566df90a5f537c47e9f7eeb5@group.calendar.google.com', color: '#f10000', name: 'Work' },
-  { id: 'OGU5ZTkzY2ZhMmFmMDFlYmExYjg5MDE0NGFjOWIxNDNlMDI5YmNmODNhZGVhM2Y0NDY5OWQ4MGIzZTZkMThjOEBncm91cC5jYWxlbmRhci5nb29nbGUuY29t', color: '#f10000', name: 'Work' },
   // Add more calendars as needed
 ];
