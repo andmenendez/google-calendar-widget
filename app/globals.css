@@ -246,13 +246,13 @@ body {
   overflow: visible;
   height: auto !important;
   padding: 6px 8px;
-  z-index: 1000 !important;
+  z-index: 9999 !important;
 }
 
 .event-block:focus-visible {
   outline: 2px solid #5B9FED;
   outline-offset: 2px;
-  z-index: 1000 !important;
+  z-index: 9999 !important;
 }
 
 .event-block.event-small:focus-visible {
