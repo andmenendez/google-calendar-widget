@@ -217,8 +217,9 @@ body {
 
 /* Event Blocks */
 .event-block {
-  margin-left: 1px;
   position: absolute;
+  left: 2px;
+  right: 6px;
   padding: 1.5px 6px;
   border-radius: 3px;
   border: 1px solid;
@@ -226,13 +227,10 @@ body {
   cursor: pointer;
   transition: all 0.2s ease-in-out;
   pointer-events: auto;
-  margin-right: 4px;
   contain: layout style;
   display: flex;
   flex-direction: column;
   gap: 2px;
-  width: 12.5%;
-  right: 4px;
 }
 
 .event-block:hover {
