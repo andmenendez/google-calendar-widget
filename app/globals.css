@@ -218,8 +218,6 @@ body {
 /* Event Blocks */
 .event-block {
   position: absolute;
-  left: 2px;
-  right: 6px;
   padding: 1.5px 6px;
   border-radius: 3px;
   border: 1px solid;
