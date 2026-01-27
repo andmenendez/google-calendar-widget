@@ -215,9 +215,16 @@ body {
   background: #7aa99413;
 }
 
+/* Day Events Container - provides containing block for absolute positioned events */
+.day-events-container {
+  position: relative;
+  pointer-events: none;
+}
+
 /* Event Blocks */
 .event-block {
   position: absolute;
+  pointer-events: auto;
   padding: 1.5px 6px;
   border-radius: 3px;
   border: 1px solid;

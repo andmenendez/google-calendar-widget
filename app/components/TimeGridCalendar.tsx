@@ -136,49 +136,52 @@ export function TimeGridCalendar({ events, weekStart, weekOffset }: TimeGridCale
           </React.Fragment>
         ))}
 
-        {/* Event blocks (absolute positioned) */}
+        {/* Event containers for each day - provides containing block for absolute positioning */}
         {eventsByDay.map((dayEvents, dayIndex) => {
           const timedEvents = filterTimedEvents(dayEvents);
           const positionedEvents = arrangeOverlappingEvents(timedEvents);
+          const column = dayIndex + 2;
 
-          return positionedEvents.map((event) => {
-            // Calculate grid position
-            // Column: dayIndex + 2 (skip time column and account for 1-indexed grid)
-            const column = dayIndex + 2;
-            // Row: starts at row 3 (after header and all-day row)
-            const row = 3;
+          return (
+            <div
+              key={`day-events-${dayIndex}`}
+              className="day-events-container"
+              style={{
+                gridColumn: column,
+                gridRow: `3 / span ${GRID_CONFIG.endHour - GRID_CONFIG.startHour}`,
+              }}
+            >
+              {positionedEvents.map((event) => {
+                const heightInPx = parseFloat(event.height);
+                const isSmallEvent = heightInPx < 45;
 
-            // Determine if event is small (height < 45px means content likely truncated)
-            const heightInPx = parseFloat(event.height);
-            const isSmallEvent = heightInPx < 45;
-
-            return (
-              <div
-                key={event.id}
-                className={`event-block ${isSmallEvent ? 'event-small' : ''}`}
-                style={{
-                  gridColumn: column,
-                  gridRow: `${row} / span ${GRID_CONFIG.endHour - GRID_CONFIG.startHour}`,
-                  top: event.top,
-                  height: event.height,
-                  left: `${event.leftOffset + 2}px`,
-                  width: `calc(100% - ${event.leftOffset + 8}px)`,
-                  zIndex: event.zIndex,
-                  backgroundColor: event.color.bg,
-                  color: event.color.text,
-                  borderColor: event.color.border,
-                }}
-              >
-                <div className="event-title">{event.summary}</div>
-                {event.start.dateTime && event.end.dateTime && (
-                  <div className="event-time">
-                    {format(new Date(event.start.dateTime), 'h:mm')} -{' '}
-                    {format(new Date(event.end.dateTime), 'h:mm a')}
+                return (
+                  <div
+                    key={event.id}
+                    className={`event-block ${isSmallEvent ? 'event-small' : ''}`}
+                    style={{
+                      top: event.top,
+                      height: event.height,
+                      left: `${event.leftOffset + 2}px`,
+                      right: '6px',
+                      zIndex: event.zIndex,
+                      backgroundColor: event.color.bg,
+                      color: event.color.text,
+                      borderColor: event.color.border,
+                    }}
+                  >
+                    <div className="event-title">{event.summary}</div>
+                    {event.start.dateTime && event.end.dateTime && (
+                      <div className="event-time">
+                        {format(new Date(event.start.dateTime), 'h:mm')} -{' '}
+                        {format(new Date(event.end.dateTime), 'h:mm a')}
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-            );
-          });
+                );
+              })}
+            </div>
+          );
         })}
       </div>
     </div>
