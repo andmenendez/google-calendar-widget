@@ -128,7 +128,7 @@ export function hexToColorScheme(hexColor: string): ColorScheme {
   const b = parseInt(hexColor.slice(5, 7), 16);
 
   return {
-    bg: rgbaToOpaqueRgb(r, g, b, 1) as any,  // 15% opacity equivalent
+    bg: rgbaToOpaqueRgb(r, g, b, 0.8) as any,  // 15% opacity equivalent
     text: `rgb(${Math.floor(r * 0.5)}, ${Math.floor(g * 0.5)}, ${Math.floor(b * 0.5)})` as any,
     border: rgbaToOpaqueRgb(r, g, b, 0.5) as any,  // 50% opacity equivalent
   };
