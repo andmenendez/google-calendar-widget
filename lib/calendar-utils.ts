@@ -62,7 +62,7 @@ export function calculateEventPosition(
 
   return {
     top: `${topRounded}px`,
-    height: `${heightRounded}px`,
+    height: `${Math.max(heightRounded - 2, 18)}px`,
   };
 }
 

@@ -22,7 +22,7 @@ export const GRID_CONFIG = {
   startHour: 6, // 6 AM
   endHour: 23, // 11 PM
   hourHeight: 36, // pixels per hour
-  quarterHourHeight: 8, // pixels per quarter hour
+  quarterHourHeight: 9, // pixels per quarter hour (36/4)
   headerHeight: 36, // day header height (row 1)
   allDayBarHeight: 36, // all-day events bar height (row 2)
   timeColumnWidth: 60, // time labels column width

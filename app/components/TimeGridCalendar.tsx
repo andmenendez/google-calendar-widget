@@ -82,7 +82,7 @@ export function TimeGridCalendar({ events, weekStart, weekOffset }: TimeGridCale
         })}
 
         {/* Time column header (for all-day events row) */}
-        <div className="time-column time-cell" />
+        <div className="time-column time-cell" style={{ gridRow: 2 }} />
 
         {/* All-day events row */}
         {eventsByDay.map((dayEvents, dayIndex) => {
@@ -114,10 +114,13 @@ export function TimeGridCalendar({ events, weekStart, weekOffset }: TimeGridCale
         })}
 
         {/* Time grid rows */}
-        {hours.map((hour) => (
+        {hours.map((hour, hourIndex) => (
           <React.Fragment key={`hour-${hour}`}>
             {/* Time label */}
-            <div className="time-column time-cell">
+            <div
+              className="time-column time-cell"
+              style={{ gridRow: 3 + hourIndex }}
+            >
               {format(new Date().setHours(hour, 0, 0, 0), 'h a')}
             </div>
 
@@ -142,13 +145,16 @@ export function TimeGridCalendar({ events, weekStart, weekOffset }: TimeGridCale
           const positionedEvents = arrangeOverlappingEvents(timedEvents);
           const column = dayIndex + 2;
 
+          const totalHours = GRID_CONFIG.endHour - GRID_CONFIG.startHour;
           return (
             <div
               key={`day-events-${dayIndex}`}
               className="day-events-container"
               style={{
                 gridColumn: column,
-                gridRow: `3 / span ${GRID_CONFIG.endHour - GRID_CONFIG.startHour}`,
+                gridRowStart: 3,
+                gridRowEnd: 3 + totalHours,
+                height: totalHours * GRID_CONFIG.hourHeight,
               }}
             >
               {positionedEvents.map((event) => {
@@ -158,7 +164,7 @@ export function TimeGridCalendar({ events, weekStart, weekOffset }: TimeGridCale
                 return (
                   <div
                     key={event.id}
-                    className={`event-block ${isSmallEvent ? 'event-small' : ''}`}
+                    className={`event-block shadow-sm ${isSmallEvent ? 'event-small' : ''}`}
                     style={{
                       top: event.top,
                       height: event.height,
@@ -171,12 +177,6 @@ export function TimeGridCalendar({ events, weekStart, weekOffset }: TimeGridCale
                     }}
                   >
                     <div className="event-title">{event.summary}</div>
-                    {event.start.dateTime && event.end.dateTime && (
-                      <div className="event-time">
-                        {format(new Date(event.start.dateTime), 'h:mm')} -{' '}
-                        {format(new Date(event.end.dateTime), 'h:mm a')}
-                      </div>
-                    )}
                   </div>
                 );
               })}
