@@ -68,18 +68,40 @@ export function calculateEventPosition(
 
 /**
  * Format time range for event display
+ * Examples: "7am - 2pm", "9 - 10am", "2 - 4pm"
  */
 export function formatEventTimeRange(startDateTime: string, endDateTime: string): string {
   const start = new Date(startDateTime);
   const end = new Date(endDateTime);
 
-  const startTime = format(start, 'h:mm');
-  const endTime = format(end, 'ha').toLowerCase();
+  const startHour = start.getHours();
+  const endHour = end.getHours();
+  const startMinutes = start.getMinutes();
+  const endMinutes = end.getMinutes();
 
-  // Remove :00 from times
-  const startFormatted = startTime.replace(':00', '');
+  const startMeridiem = startHour < 12 ? 'am' : 'pm';
+  const endMeridiem = endHour < 12 ? 'am' : 'pm';
 
-  return `${startFormatted} - ${endTime}`;
+  // Convert to 12-hour format
+  const startHour12 = startHour === 0 ? 12 : startHour > 12 ? startHour - 12 : startHour;
+  const endHour12 = endHour === 0 ? 12 : endHour > 12 ? endHour - 12 : endHour;
+
+  // Format start time (with minutes if not :00)
+  const startTimeStr = startMinutes === 0
+    ? `${startHour12}`
+    : `${startHour12}:${startMinutes.toString().padStart(2, '0')}`;
+
+  // Format end time (with minutes if not :00)
+  const endTimeStr = endMinutes === 0
+    ? `${endHour12}${endMeridiem}`
+    : `${endHour12}:${endMinutes.toString().padStart(2, '0')}${endMeridiem}`;
+
+  // Only show start meridiem if different from end meridiem
+  const startWithMeridiem = startMeridiem !== endMeridiem
+    ? `${startTimeStr}${startMeridiem}`
+    : startTimeStr;
+
+  return `${startWithMeridiem} - ${endTimeStr}`;
 }
 
 /**

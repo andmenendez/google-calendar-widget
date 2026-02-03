@@ -10,6 +10,7 @@ import {
   filterTimedEvents,
   hexToColorScheme,
   getCalendarColor,
+  formatEventTimeRange,
   type CalendarEvent,
 } from '@/lib/calendar-utils';
 import { GRID_CONFIG, DAYS_OF_WEEK } from '@/lib/constants';
@@ -133,6 +134,10 @@ export function TimeGridCalendar({ events, weekStart, weekOffset }: TimeGridCale
                 <div
                   key={`hour-${hour}-day-${dayIndex}`}
                   className={`hour-cell ${isToday ? 'today-column' : ''}`}
+                  style={{
+                    gridColumn: dayIndex + 2,
+                    gridRow: 3 + hourIndex,
+                  }}
                 />
               );
             })}
@@ -160,6 +165,9 @@ export function TimeGridCalendar({ events, weekStart, weekOffset }: TimeGridCale
               {positionedEvents.map((event) => {
                 const heightInPx = parseFloat(event.height);
                 const isSmallEvent = heightInPx < 45;
+                const timeRange = event.start.dateTime && event.end.dateTime
+                  ? formatEventTimeRange(event.start.dateTime, event.end.dateTime)
+                  : '';
 
                 return (
                   <div
@@ -176,7 +184,16 @@ export function TimeGridCalendar({ events, weekStart, weekOffset }: TimeGridCale
                       borderColor: event.color.border,
                     }}
                   >
-                    <div className="event-title">{event.summary}</div>
+                    {isSmallEvent ? (
+                      <div className="event-title">
+                        {event.summary} <span className="event-time-inline">{timeRange}</span>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="event-title">{event.summary}</div>
+                        <div className="event-time">{timeRange}</div>
+                      </>
+                    )}
                   </div>
                 );
               })}
