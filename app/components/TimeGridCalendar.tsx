@@ -172,11 +172,11 @@ export function TimeGridCalendar({ events, weekStart, weekOffset }: TimeGridCale
                 return (
                   <div
                     key={event.id}
-                    className={`event-block shadow-sm ${isSmallEvent ? 'event-small' : ''}`}
+                    className={`event-block border! border-[#fff]/30 ${isSmallEvent ? 'event-small' : ''}`}
                     style={{
                       top: event.top,
                       height: event.height,
-                      left: `${event.leftOffset + 2}px`,
+                      left: `${event.leftOffset}px`,
                       right: '6px',
                       zIndex: event.zIndex,
                       backgroundColor: event.color.bg,

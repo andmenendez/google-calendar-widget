@@ -200,7 +200,7 @@ export function arrangeOverlappingEvents(dayEvents: CalendarEvent[]): Positioned
       ...event,
       top,
       height,
-      leftOffset: overlaps.length * 8,
+      leftOffset: overlaps.length * 4,
       zIndex: index,
       color: hexToColorScheme(getCalendarColor(event.calendarId)),
     });

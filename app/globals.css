@@ -201,7 +201,7 @@ body {
 
 /* Hour Cells */
 .hour-cell {
-  border-right: 1px solid #ECECEC;
+  border-right: 1px solid #ECECEC !important;
   border-bottom: 1px solid #ECECEC;
   background: white;
   position: relative;
