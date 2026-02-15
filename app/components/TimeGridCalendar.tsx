@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { format, addDays, isSameDay } from 'date-fns';
+import { toZonedTime } from 'date-fns-tz';
 import { useRouter } from 'next/navigation';
 import {
   arrangeOverlappingEvents,
@@ -13,7 +14,7 @@ import {
   formatEventTimeRange,
   type CalendarEvent,
 } from '@/lib/calendar-utils';
-import { GRID_CONFIG, DAYS_OF_WEEK } from '@/lib/constants';
+import { GRID_CONFIG, DAYS_OF_WEEK, TIMEZONE } from '@/lib/constants';
 
 interface TimeGridCalendarProps {
   events: CalendarEvent[];
@@ -23,7 +24,7 @@ interface TimeGridCalendarProps {
 
 export function TimeGridCalendar({ events, weekStart, weekOffset }: TimeGridCalendarProps) {
   const router = useRouter();
-  const today = new Date();
+  const today = toZonedTime(new Date(), TIMEZONE);
 
   const navigateWeek = (direction: 1 | -1) => {
     const newOffset = weekOffset + direction;

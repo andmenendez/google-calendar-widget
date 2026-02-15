@@ -28,6 +28,9 @@ export const GRID_CONFIG = {
   timeColumnWidth: 60, // time labels column width
 } as const;
 
+// Timezone for all date calculations
+export const TIMEZONE = 'America/New_York';
+
 // Days of the week (Monday first)
 export const DAYS_OF_WEEK = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] as const;
 
