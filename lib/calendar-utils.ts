@@ -1,6 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { format } from 'date-fns';
-import { EVENT_COLORS, ColorScheme, GRID_CONFIG, CALENDAR_CONFIGS } from './constants';
+import { toZonedTime } from 'date-fns-tz';
+import { EVENT_COLORS, ColorScheme, GRID_CONFIG, CALENDAR_CONFIGS, TIMEZONE } from './constants';
+
+/** Convert a date string to NYC timezone */
+function toNYC(dateStr: string): Date {
+  return toZonedTime(new Date(dateStr), TIMEZONE);
+}
 
 export interface CalendarEvent {
   id: string;
@@ -33,8 +39,8 @@ export function calculateEventPosition(
   startDateTime: string,
   endDateTime: string
 ): { top: string; height: string } {
-  const start = new Date(startDateTime);
-  const end = new Date(endDateTime);
+  const start = toNYC(startDateTime);
+  const end = toNYC(endDateTime);
 
   const { startHour, endHour, hourHeight, quarterHourHeight } = GRID_CONFIG;
 
@@ -71,8 +77,8 @@ export function calculateEventPosition(
  * Examples: "7am - 2pm", "9 - 10am", "2 - 4pm"
  */
 export function formatEventTimeRange(startDateTime: string, endDateTime: string): string {
-  const start = new Date(startDateTime);
-  const end = new Date(endDateTime);
+  const start = toNYC(startDateTime);
+  const end = toNYC(endDateTime);
 
   const startHour = start.getHours();
   const endHour = end.getHours();
@@ -162,10 +168,10 @@ export function hexToColorScheme(hexColor: string): ColorScheme {
 function eventsOverlap(event1: CalendarEvent, event2: CalendarEvent): boolean {
   if (!event1.start.dateTime || !event2.start.dateTime) return false;
 
-  const start1 = new Date(event1.start.dateTime);
-  const end1 = new Date(event1.end.dateTime || event1.start.dateTime);
-  const start2 = new Date(event2.start.dateTime);
-  const end2 = new Date(event2.end.dateTime || event2.start.dateTime);
+  const start1 = toNYC(event1.start.dateTime);
+  const end1 = toNYC(event1.end.dateTime || event1.start.dateTime);
+  const start2 = toNYC(event2.start.dateTime);
+  const end2 = toNYC(event2.end.dateTime || event2.start.dateTime);
 
   return start1 < end2 && start2 < end1;
 }
@@ -178,7 +184,7 @@ export function arrangeOverlappingEvents(dayEvents: CalendarEvent[]): Positioned
   const sorted = [...dayEvents].sort((a, b) => {
     const timeA = a.start.dateTime || a.start.date || '';
     const timeB = b.start.dateTime || b.start.date || '';
-    return new Date(timeA).getTime() - new Date(timeB).getTime();
+    return toNYC(timeA).getTime() - toNYC(timeB).getTime();
   });
 
   const positioned: PositionedEvent[] = [];
@@ -219,7 +225,7 @@ export function groupEventsByDay(
   const days: CalendarEvent[][] = Array.from({ length: 7 }, () => []);
 
   events.forEach((event) => {
-    const eventDate = new Date(event.start.dateTime || event.start.date || '');
+    const eventDate = toNYC(event.start.dateTime || event.start.date || '');
     const dayIndex = Math.floor(
       (eventDate.getTime() - weekStart.getTime()) / (1000 * 60 * 60 * 24)
     );
