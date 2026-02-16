@@ -226,9 +226,10 @@ export function groupEventsByDay(
 
   events.forEach((event) => {
     const eventDate = toNYC(event.start.dateTime || event.start.date || '');
+    // Shift back 1 day to correct timezone offset on Vercel
     const dayIndex = Math.floor(
       (eventDate.getTime() - weekStart.getTime()) / (1000 * 60 * 60 * 24)
-    );
+    ) - 1;
 
     if (dayIndex >= 0 && dayIndex < 7) {
       days[dayIndex].push(event);
