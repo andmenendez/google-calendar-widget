@@ -24,7 +24,8 @@ interface TimeGridCalendarProps {
 
 export function TimeGridCalendar({ events, weekStart, weekOffset }: TimeGridCalendarProps) {
   const router = useRouter();
-  const today = toZonedTime(new Date(), TIMEZONE);
+  const tomorrow = toZonedTime(new Date(), TIMEZONE);
+  const today = tomorrow.setHours(tomorrow.getHours() - 1)
 
   const navigateWeek = (direction: 1 | -1) => {
     const newOffset = weekOffset + direction;
