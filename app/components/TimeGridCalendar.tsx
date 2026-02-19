@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { format, addDays, isSameDay } from 'date-fns';
+import { format, addDays, subDays, isSameDay } from 'date-fns';
 import { toZonedTime } from 'date-fns-tz';
 import { useRouter } from 'next/navigation';
 import {
@@ -24,8 +24,7 @@ interface TimeGridCalendarProps {
 
 export function TimeGridCalendar({ events, weekStart, weekOffset }: TimeGridCalendarProps) {
   const router = useRouter();
-  const tomorrow = toZonedTime(new Date(), TIMEZONE);
-  const today = tomorrow.setHours(tomorrow.getHours() - 1)
+  const today = subDays(toZonedTime(new Date(), TIMEZONE), 1);
 
   const navigateWeek = (direction: 1 | -1) => {
     const newOffset = weekOffset + direction;
