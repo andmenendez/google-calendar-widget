@@ -77,7 +77,7 @@ export function TimeGridCalendar({ events, weekStart, weekOffset }: TimeGridCale
             <div key={dayName} className="day-header">
               <div className="day-name">{dayName}</div>
               <div className={`date-number ${isToday ? 'today' : ''}`}>
-                {format(date, 'd')}
+                {parseInt(format(date, 'd'))+1}
               </div>
             </div>
           );
