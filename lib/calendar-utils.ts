@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { format } from 'date-fns';
+import { format, subDays } from 'date-fns';
 import { toZonedTime } from 'date-fns-tz';
 import { EVENT_COLORS, ColorScheme, GRID_CONFIG, CALENDAR_CONFIGS, TIMEZONE } from './constants';
 
@@ -225,8 +225,7 @@ export function groupEventsByDay(
   const days: CalendarEvent[][] = Array.from({ length: 7 }, () => []);
 
   events.forEach((event) => {
-    const eventDate = toNYC(event.start.dateTime || event.start.date || '');
-    // Shift back 1 day to correct timezone offset on Vercel
+    const eventDate = subDays(toNYC(event.start.dateTime || event.start.date || ''), 1);
     const dayIndex = Math.floor(
       (eventDate.getTime() - weekStart.getTime()) / (1000 * 60 * 60 * 24)
     );
