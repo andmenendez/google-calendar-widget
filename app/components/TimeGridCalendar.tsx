@@ -20,9 +20,10 @@ interface TimeGridCalendarProps {
   events: CalendarEvent[];
   weekStart: Date;
   weekOffset: number;
+  serverTime: string;
 }
 
-export function TimeGridCalendar({ events, weekStart, weekOffset }: TimeGridCalendarProps) {
+export function TimeGridCalendar({ events, weekStart, weekOffset, serverTime }: TimeGridCalendarProps) {
   const router = useRouter();
   const today = subDays(toZonedTime(new Date(), TIMEZONE), 1);
 
@@ -201,6 +202,9 @@ export function TimeGridCalendar({ events, weekStart, weekOffset }: TimeGridCale
             </div>
           );
         })}
+      </div>
+      <div style={{ fontSize: '10px', opacity: 0.3, textAlign: 'right', padding: '4px 8px' }}>
+        server: {serverTime}
       </div>
     </div>
   );

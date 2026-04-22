@@ -37,6 +37,7 @@ export default async function CalendarWidget({
         events={events as CalendarEvent[]}
         weekStart={weekStart}
         weekOffset={weekOffset}
+        serverTime={new Date().toISOString()}
       />
     </main>
   );
