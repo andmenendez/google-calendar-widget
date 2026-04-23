@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { format, addDays } from 'date-fns';
 import { toZonedTime } from 'date-fns-tz';
 import { EVENT_COLORS, ColorScheme, GRID_CONFIG, CALENDAR_CONFIGS, TIMEZONE } from './constants';
 
@@ -225,7 +224,7 @@ export function groupEventsByDay(
   const days: CalendarEvent[][] = Array.from({ length: 7 }, () => []);
 
   events.forEach((event) => {
-    const eventDate = addDays(toNYC(event.start.dateTime || event.start.date || ''), 1);
+    const eventDate = toNYC(event.start.dateTime || event.start.date || '');
     const dayIndex = Math.floor(
       (eventDate.getTime() - weekStart.getTime()) / (1000 * 60 * 60 * 24)
     );
