@@ -1,7 +1,7 @@
 import { getMultipleCalendarEvents } from "@/lib/google-calendar";
 import { CALENDAR_CONFIGS, TIMEZONE } from "@/lib/constants";
 import { startOfWeek, endOfWeek, addWeeks } from "date-fns";
-import { toZonedTime } from "date-fns-tz";
+import { toZonedTime, fromZonedTime } from "date-fns-tz";
 import { TimeGridCalendar } from "./components/TimeGridCalendar";
 import { CalendarEvent } from "@/lib/calendar-utils";
 
@@ -21,8 +21,10 @@ export default async function CalendarWidget({
   // Calculate week start (Monday) and end (Sunday) in NYC timezone
   const now = toZonedTime(new Date(), TIMEZONE);
   const weekDate = addWeeks(now, weekOffset);
-  const weekStart = startOfWeek(weekDate, { weekStartsOn: 1 }); // Monday
-  const weekEnd = endOfWeek(weekDate, { weekStartsOn: 1 }); // Sunday
+  // fromZonedTime re-interprets the local-midnight produced by startOfWeek as NYC midnight,
+  // so the UTC timestamp is consistent across servers running in different system timezones.
+  const weekStart = fromZonedTime(startOfWeek(weekDate, { weekStartsOn: 1 }), TIMEZONE);
+  const weekEnd = fromZonedTime(endOfWeek(weekDate, { weekStartsOn: 1 }), TIMEZONE);
 
   // Fetch events for the week from multiple calendars using service account
   const events = await getMultipleCalendarEvents(
